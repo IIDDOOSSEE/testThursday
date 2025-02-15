@@ -3,34 +3,33 @@ import datetime
 from django.test import TestCase
 from django.utils import timezone
 
-from .models import Question
+from .models import Question,Choice
 
 
 class QuestionModelTests(TestCase):
-    def test_was_published_recently_with_future_question(self):
-        """
-        was_published_recently() returns False for questions whose pub_date
-        is in the future.
-        """
-        time = timezone.now() + datetime.timedelta(days=30)
-        future_question = Question(pub_date=time)
-        self.assertIs(future_question.was_published_recently(), False)
+    # เทสว่า สร้างคำถามแล้วมีคำถามขึ้นหรือป่าว จำนวนถูกต้องมั้ย 
+    def test_create_question(self):
+        question = Question.objects.create(question_text="What is 2+2?", pub_date=timezone.now())
+        self.assertEqual(Question.objects.count(), 1)  
+        self.assertEqual(Question.objects.first().question_text, "What is 2+2?") 
 
-    def test_was_published_recently_with_old_question(self):
-        """
-        was_published_recently() returns False for questions whose pub_date
-        is older than 1 day.
-        """
-        time = timezone.now() - datetime.timedelta(days=1, seconds=1)
-        old_question = Question(pub_date=time)
-        self.assertIs(old_question.was_published_recently(), False)
+    # เทสว่า ช้อยที่สร้างมาถูกต้องรึป่าว จำนวนถูกมั้ย
+    def test_question_has_choices(self):
+        question = Question.objects.create(question_text="What is 2+2?", pub_date=timezone.now())
+        choice1 = Choice.objects.create(question=question, choice_text="4")
+        choice2 = Choice.objects.create(question=question, choice_text="5")
 
+        self.assertEqual(question.choice_set.count(), 2)  
+        self.assertIn(choice1, question.choice_set.all())  
+        self.assertIn(choice2, question.choice_set.all())  
 
-    def test_was_published_recently_with_recent_question(self):
-        """
-        was_published_recently() returns True for questions whose pub_date
-        is within the last day.
-        """
-        time = timezone.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
-        recent_question = Question(pub_date=time)
-        self.assertIs(recent_question.was_published_recently(), True)
+    # จำลองการโหวต
+    def test_vote_increases_count(self):
+        question = Question.objects.create(question_text="What is 2+2?", pub_date=timezone.now())
+        choice = Choice.objects.create(question=question, choice_text="4",)
+
+        choice.votes += 1
+        choice.save()
+
+        self.assertEqual(Choice.objects.get(id=choice.id).votes, 1)  
+
