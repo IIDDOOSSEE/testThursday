@@ -63,3 +63,12 @@ def index(request):
     return render(request, "mypoll/index.html", context)
 
 # Leave the rest of the views (detail, results, vote) unchanged
+
+def warmHot(request):
+    warmQuestion = Question.objects.all(vote>10)
+    hotQuestion = Question.objects.all(vote>50)
+    context = {
+        "warm" : warmQuestion,
+        "hot" : hotQuestion
+    }
+    return render(request,"warmHot.html",context)
