@@ -1,4 +1,4 @@
-from django.db.models import F
+from django.db.models import F , Sum
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -37,7 +37,6 @@ def vote(request, question_id):
     try:
         selected_choice = question.choice_set.get(pk=request.POST["choice"])
     except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
         return render(
             request,
             "mypoll/detail.html",
@@ -49,9 +48,6 @@ def vote(request, question_id):
     else:
         selected_choice.votes = F("votes") + 1
         selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
         return HttpResponseRedirect(reverse("mypoll:results", args=(question.id,)))
 
 
@@ -62,15 +58,15 @@ def index(request):
     context = {"latest_question_list": latest_question_list}
     return render(request, "mypoll/index.html", context)
 
-# Leave the rest of the views (detail, results, vote) unchanged
 
 def warmHot(request):
-    warmQuestion = Question.objects.all()
-    print(warmQuestion)
-    # print(warmQuestion.question_text)
-    hotQuestion = Question.objects.all()
+    questions = Question.objects.annotate(total_votes=Sum("choice__votes"))
+
+    warm_questions = questions.filter(total_votes__gt=10, total_votes__lt=50)
+    hot_questions = questions.filter(total_votes__gt=50)
+
     context = {
-        "warm" : warmQuestion,
-        "hot" : hotQuestion
+        "warm_questions": warm_questions,
+        "hot_questions": hot_questions
     }
-    return render(request,"mypoll/warmHot.html",context)
+    return render(request, "mypoll/warmHot.html", context)

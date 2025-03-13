@@ -4,19 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ผลโหวต</title>
-    
 </head>
 <body>
     <div class="container">
-        <h1 class="warm"> Warm Question </h1>
-        <h2 class="topic">{{ warm.question_text }}</h2>
-        <h1 class="warm"> Hot Question </h1>
-        <h2 class="topic">{{ hot.question_text }}</h2>
-        <!-- <ul>
-            {% for choice in question.choice_set.all %}
-                <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+        <h1 class="warm">Warm Question</h1>
+        <ul>
+            {% for question in warm_questions %}
+                <li class ="warm_question">
+                    <a href="{% url 'mypoll:detail' question.id %}">
+                        {{ question.question_text }} ({{ question.total_votes }} votes)
+                    </a>
+                </li>
             {% endfor %}
-        </ul> -->
+        </ul>
+
+        <h1 class="hot">Hot Question</h1>
+        <ul>
+            {% for question in hot_questions %}
+                <li class="hot_question">
+                    <a href="{% url 'mypoll:detail' question.id %}">
+                        {{ question.question_text }} ({{ question.total_votes }} votes)
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 </body>
 </html>
