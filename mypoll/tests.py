@@ -53,12 +53,16 @@ class QuestionModelTests(TestCase):
     #     self.assertEqual(response.status_code, 200)
     #     self.assertIn(question, response.context['hot_questions'])
 
-    def test_private(self):
-        url = reverse('mypoll:private/1')
-        question = Question.objects.create(question_text = "What is 2+2?",pub_date = timezone.now())
-        choice = Choice.objects.create(question=question, choice_text="4",)
-        choice.votes+=55
-        choice.save()
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(question, response.context['private_question'])
+    def test_private_question_display(self):
+            url = reverse("mypoll:private_questions")
+            question = Question.objects.create(
+                question_text="What is 2+2?", pub_date=timezone.now(), is_private=True
+            )
+            choice = Choice.objects.create(question=question, choice_text="4")
+            choice.votes += 55
+            choice.save()
+
+            response = self.client.get(url)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "What is 2+2?")

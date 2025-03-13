@@ -117,20 +117,27 @@ class pollApp(StaticLiveServerTestCase):
         # self.assertEqual(len(hot_questions), 1)
       
     def test_private_question(self):
-        self.driver.get(url)
-        time.sleep(2)
-        url = self.live_server_url + '/private/1'
-        question = Question.objects.create(question_text="What is 2+2?", pub_date=timezone.now())
+        question = Question.objects.create(
+            question_text="What is 2+2?", pub_date=timezone.now(), is_private=True
+        )
         choice1 = Choice.objects.create(question=question, choice_text="3")
         choice2 = Choice.objects.create(question=question, choice_text="4")
-
-        choice1.votes = 15  
-        choice2.votes = 5  
+        choice1.votes = 15
+        choice2.votes = 5
         choice1.save()
         choice2.save()
+
+        url = self.live_server_url + "/private/"
+        self.driver.get(url)
+
         private_questions = WebDriverWait(self.driver, 5).until(
-        EC.presence_of_all_elements_located((By.CLASS_NAME, 'private_question'))
+            EC.presence_of_all_elements_located((By.CLASS_NAME, "private_question"))
         )
-        private_questions_text = [question.text for question in private_questions]
-        self.assertIn("What is 2+2?", private_questions_text[0]) 
+        time.sleep(2)
+
+        private_questions_text = [q.text for q in private_questions]
+
+        self.assertIn("What is 2+2?", private_questions_text)
         self.assertEqual(len(private_questions), 1)
+
+

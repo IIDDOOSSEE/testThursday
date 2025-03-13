@@ -26,10 +26,13 @@ def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, "mypoll/detail.html", {"question": question})
 
-def detailprivate(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, "mypoll/privatequestion.html", {"question": question})
+def private_questions(request):
+    private_question = Question.objects.filter(is_private=True).order_by("-pub_date")  
+    return render(request, "mypoll/privatequestion.html", {"questions": private_question})
 
+def private_question_detail(request, question_id):
+    question = get_object_or_404(Question, pk=question_id, is_private=True)
+    return render(request, "mypoll/privatequestion_detail.html", {"question": question})
 
 def results(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
