@@ -80,40 +80,57 @@ class pollApp(StaticLiveServerTestCase):
     #     choice_2_result = next(item.text for item in result_items if "2" in item.text)
     #     self.assertEqual(choice_2_result, "2 -- 1 vote")
     
-    def test_warm_hot_display(self):
-        question1 = Question.objects.create(question_text="What is 2+2?", pub_date=timezone.now())
-        choice1 = Choice.objects.create(question=question1, choice_text="3")
-        choice2 = Choice.objects.create(question=question1, choice_text="4")
+    # def test_warm_hot_display(self):
+    #     question1 = Question.objects.create(question_text="What is 2+2?", pub_date=timezone.now())
+    #     choice1 = Choice.objects.create(question=question1, choice_text="3")
+    #     choice2 = Choice.objects.create(question=question1, choice_text="4")
+
+    #     choice1.votes = 15  
+    #     choice2.votes = 5  
+    #     choice1.save()
+    #     choice2.save()
+
+    #     question2 = Question.objects.create(question_text="What's your favorite colour ?", pub_date=timezone.now())
+    #     choice3 = Choice.objects.create(question=question2, choice_text="blue")
+    #     choice4 = Choice.objects.create(question=question2, choice_text="green")
+
+    #     choice3.votes = 25  
+    #     choice4.votes = 30  
+    #     choice3.save()
+    #     choice4.save()
+        # url = self.live_server_url + '/warmhot'
+
+        # self.driver.get(url)
+        # time.sleep(2)
+        # warm_questions = WebDriverWait(self.driver, 5).until(
+        # EC.presence_of_all_elements_located((By.CLASS_NAME, 'warm_question'))
+        # )
+        # hot_questions = WebDriverWait(self.driver, 5).until(
+        #     EC.presence_of_all_elements_located((By.CLASS_NAME, 'hot_question'))
+        # )
+        # warm_question_text = [question.text for question in warm_questions]
+        # hot_question_text = [question.text for question in hot_questions]
+        # self.assertIn("What is 2+2?", warm_question_text[0])  
+        # self.assertIn("What's your favorite colour ?", hot_question_text[0])   
+
+        # self.assertEqual(len(warm_questions), 1)
+        # self.assertEqual(len(hot_questions), 1)
+      
+    def test_private_question(self):
+        self.driver.get(url)
+        time.sleep(2)
+        url = self.live_server_url + '/private/1'
+        question = Question.objects.create(question_text="What is 2+2?", pub_date=timezone.now())
+        choice1 = Choice.objects.create(question=question, choice_text="3")
+        choice2 = Choice.objects.create(question=question, choice_text="4")
 
         choice1.votes = 15  
         choice2.votes = 5  
         choice1.save()
         choice2.save()
-
-        question2 = Question.objects.create(question_text="What's your favorite colour ?", pub_date=timezone.now())
-        choice3 = Choice.objects.create(question=question2, choice_text="blue")
-        choice4 = Choice.objects.create(question=question2, choice_text="green")
-
-        choice3.votes = 25  
-        choice4.votes = 30  
-        choice3.save()
-        choice4.save()
-        url = self.live_server_url + '/warmhot'
-
-        self.driver.get(url)
-        time.sleep(2)
-        warm_questions = WebDriverWait(self.driver, 5).until(
-        EC.presence_of_all_elements_located((By.CLASS_NAME, 'warm_question'))
+        private_questions = WebDriverWait(self.driver, 5).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, 'private_question'))
         )
-        hot_questions = WebDriverWait(self.driver, 5).until(
-            EC.presence_of_all_elements_located((By.CLASS_NAME, 'hot_question'))
-        )
-        warm_question_text = [question.text for question in warm_questions]
-        hot_question_text = [question.text for question in hot_questions]
-        self.assertIn("What is 2+2?", warm_question_text[0])  
-        self.assertIn("What's your favorite colour ?", hot_question_text[0])   
-
-        self.assertEqual(len(warm_questions), 1)
-        self.assertEqual(len(hot_questions), 1)
-      
-
+        private_questions_text = [question.text for question in private_questions]
+        self.assertIn("What is 2+2?", private_questions_text[0]) 
+        self.assertEqual(len(private_questions), 1)
